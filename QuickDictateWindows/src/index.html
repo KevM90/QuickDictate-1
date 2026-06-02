@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickDictate</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="main-window">
+    <div class="header">
+      <span class="app-name">QuickDictate</span>
+      <button class="settings-btn" id="settingsBtn" title="Einstellungen">⚙</button>
+    </div>
+
+    <div class="status-area">
+      <div class="status-icon idle" id="statusIcon">🎙</div>
+      <div class="status-text" id="statusText">Bereit. Hotkey oder Knopf drücken.</div>
+      <div class="result-text" id="resultText" style="display:none"></div>
+    </div>
+
+    <button class="record-btn" id="recordBtn">Aufnahme starten</button>
+
+    <div class="hotkey-hint">
+      Hotkey: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

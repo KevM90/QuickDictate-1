@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickDictate – Einstellungen</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="settings-window">
+    <div class="settings-title">Einstellungen</div>
+
+    <!-- API Key -->
+    <div class="section">
+      <div class="section-label">Groq API Key</div>
+
+      <div id="keyDisplayArea" style="display:none">
+        <div class="key-display">
+          <span class="lock">🔒</span>
+          <span id="keyDisplayValue"></span>
+        </div>
+        <div class="btn-row" style="margin-top:8px">
+          <button class="btn" id="changeKeyBtn">Ändern</button>
+          <button class="btn danger" id="deleteKeyBtn">Löschen</button>
+          <button class="btn" id="testBtn">Verbindung testen</button>
+        </div>
+      </div>
+
+      <div id="keyInputArea">
+        <div class="field">
+          <input type="password" id="apiKeyInput" placeholder="gsk_..." autocomplete="off" />
+        </div>
+        <div class="btn-row" style="margin-top:8px">
+          <button class="btn primary" id="saveKeyBtn">Speichern</button>
+          <button class="btn" id="pasteKeyBtn">Einfügen</button>
+        </div>
+        <div class="info-text" style="margin-top:6px">
+          API Key bleibt lokal im Windows Credential Manager. Nie im Repo gespeichert.
+        </div>
+      </div>
+
+      <div id="keyMsg" class="msg" style="display:none"></div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Models -->
+    <div class="section">
+      <div class="section-label">Groq Modelle</div>
+
+      <div class="field">
+        <label>Transkription</label>
+        <select id="transcriptionModel">
+          <option value="whisper-large-v3-turbo">Whisper Large V3 Turbo (schnell)</option>
+          <option value="whisper-large-v3">Whisper Large V3 (genauer)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Textverbesserung</label>
+        <select id="chatModel">
+          <option value="llama-3.3-70b-versatile">Llama 3.3 70B (empfohlen)</option>
+          <option value="llama-3.1-8b-instant">Llama 3.1 8B (schnell)</option>
+        </select>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Recording settings -->
+    <div class="section">
+      <div class="section-label">Aufnahme</div>
+
+      <div class="field">
+        <label>Sprache</label>
+        <select id="language">
+          <option value="de">Deutsch</option>
+          <option value="en">English</option>
+          <option value="">Auto-Erkennung</option>
+        </select>
+      </div>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="improvementEnabled" />
+        <label for="improvementEnabled">Textverbesserung aktivieren</label>
+      </div>
+      <div class="info-text">
+        Bei aktivierter Verbesserung wird der transkribierte Text anschließend mit dem Groq Chat-Modell umformuliert.
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Save settings -->
+    <div class="btn-row">
+      <button class="btn primary" id="saveSettingsBtn">Einstellungen speichern</button>
+    </div>
+    <div id="settingsMsg" class="msg" style="display:none"></div>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
