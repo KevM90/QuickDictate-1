@@ -5,7 +5,7 @@ use std::sync::Mutex;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter, Manager, State,
+    AppHandle, Emitter, Manager,
 };
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
@@ -14,7 +14,7 @@ mod audio;
 mod groq;
 mod settings;
 
-// ── App state ─────────────────────────────────────────────────────────────────
+// ── State ─────────────────────────────────────────────────────────────────────
 
 #[derive(Default)]
 struct RecordingInner {
@@ -24,7 +24,7 @@ struct RecordingInner {
 
 struct AppState(Mutex<RecordingInner>);
 
-// ── Tauri commands ─────────────────────────────────────────────────────────────
+// ── Commands ──────────────────────────────────────────────────────────────────
 
 #[tauri::command]
 fn get_settings(app: AppHandle) -> settings::Settings {
@@ -38,11 +38,11 @@ fn save_settings(app: AppHandle, s: settings::Settings) -> Result<(), String> {
 
 #[tauri::command]
 fn save_api_key(key: String) -> Result<(), String> {
-    let trimmed = key.trim().to_string();
-    if trimmed.is_empty() {
+    let key = key.trim().to_string();
+    if key.is_empty() {
         return Err("Bitte einen Groq API Key eingeben.".to_string());
     }
-    settings::save_api_key(&trimmed)
+    settings::save_api_key(&key)
 }
 
 #[tauri::command]
@@ -68,48 +68,49 @@ async fn test_connection(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn toggle_recording(app: AppHandle, state: State<'_, AppState>) -> Result<(), String> {
+async fn toggle_recording(app: AppHandle) -> Result<(), String> {
+    do_toggle_recording(&app).await
+}
+
+// ── Core logic (usable from commands AND hotkey handler) ──────────────────────
+
+async fn do_toggle_recording(app: &AppHandle) -> Result<(), String> {
+    let state = app.state::<AppState>();
     let is_recording = {
         let inner = state.0.lock().map_err(|e| e.to_string())?;
         inner.is_recording
     };
 
     if is_recording {
-        stop_and_transcribe_internal(app, state).await
+        do_stop_and_transcribe(app).await
     } else {
-        start_recording_internal(app, state)
+        do_start_recording(app)
     }
 }
 
-// ── Internal helpers ──────────────────────────────────────────────────────────
-
-fn start_recording_internal(
-    app: AppHandle,
-    state: State<'_, AppState>,
-) -> Result<(), String> {
+fn do_start_recording(app: &AppHandle) -> Result<(), String> {
     if !settings::has_api_key() {
         app.emit("show-error", "Groq API Key fehlt. Bitte in den Einstellungen eintragen.").ok();
-        open_settings_window(&app);
+        open_settings_window(app);
         return Ok(());
     }
 
     let recorder = audio::Recorder::new()?;
     recorder.start()?;
 
-    {
-        let mut inner = state.0.lock().map_err(|e| e.to_string())?;
-        inner.recorder = Some(recorder);
-        inner.is_recording = true;
-    }
+    let state = app.state::<AppState>();
+    let mut inner = state.0.lock().map_err(|e| e.to_string())?;
+    inner.recorder = Some(recorder);
+    inner.is_recording = true;
+    drop(inner);
 
     app.emit("recording-started", ()).ok();
     Ok(())
 }
 
-async fn stop_and_transcribe_internal(
-    app: AppHandle,
-    state: State<'_, AppState>,
-) -> Result<(), String> {
+async fn do_stop_and_transcribe(app: &AppHandle) -> Result<(), String> {
+    let state = app.state::<AppState>();
+
     let recorder = {
         let mut inner = state.0.lock().map_err(|e| e.to_string())?;
         inner.is_recording = false;
@@ -130,24 +131,8 @@ async fn stop_and_transcribe_internal(
 
     let wav_path = recorder.stop_and_save()?;
 
-    let api_key = settings::get_api_key().map_err(|e| {
-        app.emit("show-error", &e).ok();
-        e
-    })?;
-
-    let s = settings::load(&app);
-
-    app.emit("status-update", "Wird transkribiert...").ok();
-
-    let text = match groq::transcribe(
-        &wav_path,
-        &api_key,
-        &s.transcription_model,
-        Some(&s.language),
-    )
-    .await
-    {
-        Ok(t) => t,
+    let api_key = match settings::get_api_key() {
+        Ok(k) => k,
         Err(e) => {
             let _ = std::fs::remove_file(&wav_path);
             app.emit("show-error", &e).ok();
@@ -155,7 +140,17 @@ async fn stop_and_transcribe_internal(
         }
     };
 
-    let _ = std::fs::remove_file(&wav_path);
+    let s = settings::load(app);
+    app.emit("status-update", "Wird transkribiert...").ok();
+
+    let text = match groq::transcribe(&wav_path, &api_key, &s.transcription_model, Some(&s.language)).await {
+        Ok(t) => { let _ = std::fs::remove_file(&wav_path); t }
+        Err(e) => {
+            let _ = std::fs::remove_file(&wav_path);
+            app.emit("show-error", &e).ok();
+            return Err(e);
+        }
+    };
 
     if text.trim().is_empty() {
         app.emit("show-error", "Keine Aufnahme erkannt.").ok();
@@ -164,14 +159,11 @@ async fn stop_and_transcribe_internal(
 
     let final_text = if s.improvement_enabled {
         app.emit("status-update", "Text wird verbessert...").ok();
-        groq::improve_text(&text, &api_key, &s.chat_model)
-            .await
-            .unwrap_or(text)
+        groq::improve_text(&text, &api_key, &s.chat_model).await.unwrap_or(text)
     } else {
         text
     };
 
-    // Copy to clipboard
     app.clipboard()
         .write_text(&final_text)
         .map_err(|e| format!("Clipboard-Fehler: {}", e))?;
@@ -179,6 +171,8 @@ async fn stop_and_transcribe_internal(
     app.emit("transcription-result", &final_text).ok();
     Ok(())
 }
+
+// ── Window helpers ────────────────────────────────────────────────────────────
 
 fn toggle_main_window(app: &AppHandle) {
     if let Some(win) = app.get_webview_window("main") {
@@ -217,7 +211,7 @@ fn main() {
             toggle_recording,
         ])
         .setup(|app| {
-            // Tray icon + menu
+            // Tray icon
             let quit_item =
                 MenuItem::with_id(app, "quit", "QuickDictate beenden", true, None::<&str>)?;
             let settings_item =
@@ -233,17 +227,13 @@ fn main() {
                     _ => {}
                 })
                 .on_tray_icon_event(|tray, event| {
-                    if let TrayIconEvent::Click {
-                        button: MouseButton::Left,
-                        ..
-                    } = event
-                    {
+                    if let TrayIconEvent::Click { button: MouseButton::Left, .. } = event {
                         toggle_main_window(tray.app_handle());
                     }
                 })
                 .build(app)?;
 
-            // Global hotkey (default: Ctrl+Shift+Space)
+            // Global hotkey: Ctrl+Shift+Space
             let app_handle = app.handle().clone();
             let shortcut = Shortcut::new(
                 Some(Modifiers::CONTROL | Modifiers::SHIFT),
@@ -254,10 +244,8 @@ fn main() {
                 if event.state == ShortcutState::Pressed {
                     let handle = app_handle.clone();
                     tauri::async_runtime::spawn(async move {
-                        if let Some(state) = handle.try_state::<AppState>() {
-                            if let Err(e) = toggle_recording(handle.clone(), state).await {
-                                handle.emit("show-error", e).ok();
-                            }
+                        if let Err(e) = do_toggle_recording(&handle).await {
+                            handle.emit("show-error", e).ok();
                         }
                     });
                 }

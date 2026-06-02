@@ -10,24 +10,44 @@ It is intentionally small and unfinished. The goal is to make a real workflow vi
 
 This is a learning and experimentation project, not a polished product.
 
-> Preview status: bring your own OpenAI API key, no hosted backend, no warranty, no support guarantee.
+> Preview status: bring your own Groq API key, no hosted backend, no warranty, no support guarantee.
 
 ## What It Does
 
-- **Blitztext**: record speech and transcribe it.
-- **Blitztext+**: record speech, transcribe it, then turn the rough draft into cleaner writing.
-- **Blitztext $%&!**: turn frustrated speech into a calmer message.
-- **Blitztext :)**: add fitting emojis to dictated text.
+**macOS (menubar app):**
+- **Dictate**: record speech and transcribe it via Groq Whisper.
+- **Dictate+**: transcribe, then improve the text with Groq Chat.
+- **Vent**: turn frustrated speech into a calmer message.
+- **Emojis**: add fitting emojis to dictated text.
+
+**Windows 11 (portable, system tray):**
+- `Ctrl+Shift+Space` → record → text lands in clipboard.
+- Optional text improvement via Groq Chat.
+- Settings window: API key, model selection, language.
 
 ## Important Preview Notes
 
-- macOS only.
-- Bring your own OpenAI API key.
-- No hosted Blitztext backend is included or provided.
-- In online mode, audio and text are sent directly from the app to the OpenAI API.
-- Optional local transcription via WhisperKit/CoreML if you install a compatible model locally.
-- `./build.sh` creates a locally ad-hoc-signed development app. No notarized release binary is provided.
-- Not production ready.
+- Bring your own [Groq API key](https://console.groq.com) — free tier available.
+- No hosted backend. Audio goes directly from your device to the Groq API.
+- macOS: `./build.sh` creates an ad-hoc-signed app. No notarized binary.
+- Windows: portable `.exe`, no installer required. WebView2 must be present (pre-installed on Windows 11).
+- Not production ready. No warranty.
+
+## Windows 11 — Quick Start
+
+```powershell
+cd QuickDictateWindows
+npm install
+# Generate icons (once):
+npx @tauri-apps/cli icon ..\BlitztextMac\Resources\Assets.xcassets\AppIcon.appiconset\icon_512x512.png
+npm run build
+# Or use the build script:
+powershell -ExecutionPolicy Bypass -File build-windows.ps1 -Run
+```
+
+See [docs/BUILD_WINDOWS_PORTABLE.md](docs/BUILD_WINDOWS_PORTABLE.md) for full instructions.
+
+## macOS — Quick Start
 - No warranty and no support guarantee.
 
 You are welcome to use, fork, adapt, and share this project under the license terms.
@@ -47,26 +67,23 @@ The intent is not to ship a one-click finished app. The intent is to make a real
   </tr>
 </table>
 
-## Requirements
+## macOS Requirements
 
 - macOS 14 or newer
-- Xcode 16 or newer (Swift 5.10), with Command Line Tools installed and selected for `xcodebuild`
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) to generate the Xcode project
-- For online transcription and rewriting: an OpenAI API key with access to:
-  - `whisper-1` for transcription
-  - `gpt-4o-mini` and optionally `gpt-4o` for rewriting
-- For local-only transcription: a WhisperKit CoreML model in:
-  `~/Library/Application Support/Blitztext/models/whisperkit/`
+- Xcode 16 or newer (Swift 5.10)
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen): `brew install xcodegen`
+- A [Groq API key](https://console.groq.com) (free tier available)
+- For local transcription: a WhisperKit CoreML model in `~/Library/Application Support/QuickDictate/models/whisperkit/`
 
-The build also pulls one Swift Package dependency automatically:
+Swift Package dependency (pulled automatically):
+- [`argmax-oss-swift`](https://github.com/argmaxinc/argmax-oss-swift) (WhisperKit)
 
-- [`argmax-oss-swift`](https://github.com/argmaxinc/argmax-oss-swift) (WhisperKit) — used for local on-device transcription.
+## Windows 11 Requirements
 
-Install XcodeGen if needed:
-
-```bash
-brew install xcodegen
-```
+- Windows 11 (WebView2 pre-installed)
+- [Rust](https://rustup.rs) stable
+- [Node.js](https://nodejs.org) v18+
+- A [Groq API key](https://console.groq.com)
 
 ## Build And Run
 

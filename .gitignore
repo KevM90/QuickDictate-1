@@ -17,6 +17,8 @@ build/
 Blitztext.app
 QuickDictate.app
 dist/
+QuickDictateWindows/node_modules/
+QuickDictateWindows/src-tauri/target/
 models/
 *.mlmodel
 *.mlmodelc/

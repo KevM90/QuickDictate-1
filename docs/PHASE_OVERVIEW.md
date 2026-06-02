@@ -9,7 +9,7 @@
 | 4 | macOS Funktionalität & Build | ⚠️ Teilweise (Build ausstehend) | 2026-06-02 | 81529af |
 | 5 | Windows Portable Architekturentscheidung | ✅ Abgeschlossen | 2026-06-02 | — |
 | 6 | Windows Portable MVP | ⚠️ Implementiert (Win-Build ausstehend) | 2026-06-02 | — |
-| 7 | Windows Packaging & Qualität | ⏳ Offen | — | — |
+| 7 | Windows Packaging & Qualität | ✅ Abgeschlossen | 2026-06-02 | — |
 | 8 | Dokumentation & README Finalisierung | ⏳ Offen | — | — |
 | 9 | Security-, Secret- & Anonymisierungscheck | ⏳ Offen | — | — |
 | 10 | Privates GitHub-Repository & Push | ⏳ Offen | — | — |
