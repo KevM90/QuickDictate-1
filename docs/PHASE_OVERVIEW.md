@@ -7,7 +7,7 @@
 | 2 | Groq Provider Layer | ✅ Abgeschlossen | 2026-06-02 | — |
 | 3 | macOS Settings & Secret Management | ✅ Abgeschlossen | 2026-06-02 | — |
 | 4 | macOS Funktionalität & Build | ⚠️ Teilweise (Build ausstehend) | 2026-06-02 | 81529af |
-| 5 | Windows Portable Architekturentscheidung | ⏳ Offen | — | — |
+| 5 | Windows Portable Architekturentscheidung | ✅ Abgeschlossen | 2026-06-02 | — |
 | 6 | Windows Portable MVP | ⏳ Offen | — | — |
 | 7 | Windows Packaging & Qualität | ⏳ Offen | — | — |
 | 8 | Dokumentation & README Finalisierung | ⏳ Offen | — | — |
