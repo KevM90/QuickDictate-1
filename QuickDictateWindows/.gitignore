@@ -3,3 +3,6 @@ src-tauri/target/
 src-tauri/Cargo.lock
 dist/
 .tauri/
+# Mobile icon outputs from tauri icon generator (not needed for Windows)
+src-tauri/icons/android/
+src-tauri/icons/ios/

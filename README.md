@@ -155,6 +155,75 @@ Local transcription is available as an experimental WhisperKit/CoreML path. The 
 
 See [docs/local-models.md](docs/local-models.md).
 
+## FAQ
+
+### Where do I get a Groq API key?
+
+Sign up at [console.groq.com](https://console.groq.com). The free tier is sufficient for personal use. API keys start with `gsk_`.
+
+### macOS: The app says "Groq API Key fehlt" — what do I do?
+
+Open the app → click the gear icon or go to **Settings → Zugang** → enter your `gsk_...` key and click **Speichern**. Use the **API-Verbindung testen** button to verify.
+
+### macOS: Auto-paste doesn't work
+
+1. Open **System Settings → Privacy & Security → Accessibility**
+2. Enable QuickDictate. If it already appears enabled, toggle it off and on.
+3. Restart QuickDictate.
+4. Make sure the cursor is focused in a text field **before** pressing the hotkey.
+
+If macOS shows multiple QuickDictate entries, remove the stale ones and re-grant permission to the current build.
+
+### macOS: Build fails with "xcodebuild requires Xcode"
+
+Run: `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
+
+### macOS: Where are my settings and API key stored?
+
+- **API key**: macOS Keychain (`app.quickdictate.credentials`) — never in any file
+- **App settings**: `~/Library/Application Support/QuickDictate/settings.json`
+- **WhisperKit models**: `~/Library/Application Support/QuickDictate/models/whisperkit/`
+
+### macOS: How do I uninstall completely?
+
+1. Open Settings → Zugang → **Entfernung vorbereiten** → **Jetzt bereinigen**
+2. Quit QuickDictate
+3. Delete `QuickDictate.app` from `/Applications`
+
+### Windows: The hotkey (Ctrl+Shift+Space) doesn't work
+
+Some applications block global hotkeys. Try:
+1. Running QuickDictate as Administrator
+2. Checking that no other app has registered the same hotkey
+3. Using the **Aufnahme starten** button in the tray window as fallback
+
+### Windows: SmartScreen shows a warning
+
+The binary is not code-signed (no Authenticode certificate). Click **More info → Run anyway**. The source code is fully open for inspection. See [SECURITY.md](SECURITY.md) to report concerns.
+
+### Windows: Where are my settings stored?
+
+- **API key**: Windows Credential Manager (`app.quickdictate`) — not in any file
+- **App settings**: `%APPDATA%\QuickDictate\settings.json`
+
+### Windows: The app starts but I see no tray icon
+
+Make sure the system tray is not hidden. Right-click the taskbar → **Taskbar settings** → **Other system tray icons** → enable QuickDictate.
+
+### Can I use a different Groq model?
+
+Yes. Open **Settings → Anpassen → Groq Modelle** and choose from the available options. Changes take effect immediately.
+
+### Is audio sent to any server other than Groq?
+
+No. There is no QuickDictate backend. Audio goes directly from your device to `api.groq.com`. See [docs/privacy.md](docs/privacy.md).
+
+### Does QuickDictate collect usage data?
+
+No. There is no telemetry of any kind.
+
+---
+
 ## Contributing
 
 Contributions are welcome, especially if they make the preview easier to build, understand, or fork.
