@@ -56,16 +56,8 @@ The intent is not to ship a one-click finished app. The intent is to make a real
 
 ## Screenshots
 
-<table>
-  <tr>
-    <td><img src="docs/screenshots/online-mode.png" alt="Blitztext online transcription mode" width="420"></td>
-    <td><img src="docs/screenshots/local-mode.png" alt="Blitztext secure local transcription mode" width="420"></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/local-model-picker.png" alt="Blitztext local model picker" width="420"></td>
-    <td><img src="docs/screenshots/settings-customize.png" alt="Blitztext settings and customization view" width="420"></td>
-  </tr>
-</table>
+> Screenshots will be added after the first QuickDictate build is complete.
+> The `docs/screenshots/` folder currently contains screenshots from the upstream blitztext-app for reference only.
 
 ## macOS Requirements
 
@@ -85,11 +77,12 @@ Swift Package dependency (pulled automatically):
 - [Node.js](https://nodejs.org) v18+
 - A [Groq API key](https://console.groq.com)
 
-## Build And Run
+## macOS Build And Run
 
 ```bash
-git clone https://github.com/cmagnussen/blitztext-app.git
-cd blitztext-app
+git clone <your-private-repo-url>
+cd <project-folder>
+brew install xcodegen
 ./build.sh --run
 ```
 
@@ -99,49 +92,61 @@ For a local install into `/Applications`:
 ./build.sh --install --run
 ```
 
-The generated `.app` is ad-hoc signed for local development only. Do not treat it as a trusted redistributable binary. A public binary release would need Developer ID signing and notarization.
+The generated `.app` is ad-hoc signed for local development only. Not notarized.
 
-On first launch, either paste your own OpenAI API key for online workflows or install a WhisperKit CoreML model for local transcription. Rewriting workflows still require OpenAI.
+On first launch, enter your Groq API key in Settings → Zugang, or install a WhisperKit CoreML model for local transcription.
 
 For fully local transcription, install a WhisperKit CoreML model and enable **Sicherer Lokaler Modus** in the app.
 
-For a slower, more explicit walkthrough, see [docs/setup.md](docs/setup.md).
+For a step-by-step walkthrough, see [docs/setup.md](docs/setup.md).
 
-## Permissions
+## macOS Permissions
 
-Blitztext asks for:
+QuickDictate asks for:
 
 - **Microphone**: to record your voice.
 - **Accessibility**: to paste the result back into the app you were using.
 
 If you do not grant Accessibility permission, you can still copy results manually.
 
-Full Disk Access is not required. If auto-paste does not work even though transcription succeeds, open **System Settings -> Privacy & Security -> Accessibility**, enable Blitztext there, restart Blitztext, and try again with the cursor focused in a text field. If macOS shows multiple Blitztext entries, remove or disable the old ones and grant the permission to the app you just built or installed.
+Full Disk Access is not required. If auto-paste does not work, open **System Settings → Privacy & Security → Accessibility**, enable QuickDictate, restart the app, and make sure the cursor is focused in a text field. If macOS shows multiple QuickDictate entries, remove stale ones and re-grant permission.
+
+## Windows Permissions
+
+Windows may ask for **Microphone** access on first launch — allow it in **Settings → Privacy & Security → Microphone**. Windows SmartScreen may warn on first run of an unsigned binary — click "More info → Run anyway".
 
 ## Data Flow
 
-The preview has no custom backend.
+No custom backend. All API calls go directly from your device to Groq.
 
 ```text
-Online transcription: Your Mac -> OpenAI Audio Transcriptions API
-Text rewriting:       Your Mac -> OpenAI Chat Completions API
-Local transcription:  Your Mac -> WhisperKit/CoreML on device
+macOS online transcription:  Your Mac   → Groq Audio Transcriptions API
+macOS text rewriting:        Your Mac   → Groq Chat Completions API
+macOS local transcription:   Your Mac   → WhisperKit/CoreML (on-device)
+Windows transcription:       Your PC    → Groq Audio Transcriptions API
+Windows text rewriting:      Your PC    → Groq Chat Completions API
 ```
 
-The app stores your OpenAI API key in the user's macOS Keychain.
+API key storage:
+- **macOS**: macOS Keychain (`app.quickdictate.credentials`)
+- **Windows**: Windows Credential Manager (`app.quickdictate`)
 
-Read [docs/privacy.md](docs/privacy.md) before using the preview with sensitive content.
+Read [docs/privacy.md](docs/privacy.md) before using with sensitive content.
 
 ## Project Structure
 
 ```text
-BlitztextMac/
-  App/          App lifecycle and paste handling
-  Features/     Workflows, menu bar UI, settings
-  Services/     Recording, OpenAI calls, hotkeys, local storage
-  Views/        Shared SwiftUI views
-build.sh        Local build script
-docs/           Setup, privacy, roadmap, preflight, landing page notes
+BlitztextMac/                   macOS app (Swift/SwiftUI)
+  App/                          App lifecycle, paste handling
+  Features/                     Workflows, menubar UI, settings
+  Services/                     Recording, Groq API, hotkeys, keychain, local models
+  Views/                        Shared SwiftUI views
+QuickDictateWindows/            Windows portable app (Tauri 2 + Rust)
+  src-tauri/src/                Rust backend: audio, groq, settings, main
+  src/                          HTML/JS/CSS frontend
+build.sh                        macOS build script
+QuickDictateWindows/build-windows.ps1   Windows build script
+docs/                           Architecture, API docs, phase docs, privacy
 ```
 
 ## Local Models

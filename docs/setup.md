@@ -1,80 +1,106 @@
-# Setup
+# Setup — QuickDictate
 
-This guide is for people who want to build and inspect the preview themselves.
+## macOS Setup
 
-## 1. Requirements
+### 1. Requirements
 
 - macOS 14 or newer
-- Full Xcode, with Command Line Tools installed
-- XcodeGen
-- Homebrew, if you want to install XcodeGen with `brew install xcodegen`
-- Optional for online workflows: an OpenAI API key
-- Optional for secure local transcription: a local WhisperKit/CoreML model
+- Full Xcode with Command Line Tools
+- XcodeGen: `brew install xcodegen`
+- A [Groq API key](https://console.groq.com) (free tier available)
+- Optional: WhisperKit/CoreML model for local transcription
 
-Install XcodeGen manually if needed:
-
-```bash
-brew install xcodegen
-```
-
-## 2. Clone And Build
+### 2. Clone And Build
 
 ```bash
-git clone https://github.com/cmagnussen/blitztext-app.git
-cd blitztext-app
-./build.sh --debug
-```
-
-To launch after building:
-
-```bash
+git clone <your-repo-url>
+cd <project-folder>
 ./build.sh --run
 ```
 
-## 3. Configure OpenAI For Online Workflows
+To install into `/Applications`:
 
-Open the app settings and paste your own OpenAI API key if you want online transcription or rewriting workflows.
-
-The preview currently uses:
-
-- `whisper-1` for transcription
-- `gpt-4o-mini` for lightweight rewriting
-- `gpt-4o` for the calmer-message workflow
-
-You are responsible for API access, billing, and data handling in your own OpenAI account.
-
-Never commit your API key into this repository, issues, logs, or screenshots.
-
-You can skip this step if you only want to test local transcription with a local WhisperKit model.
-
-## 4. Optional Local Transcription
-
-To use secure local transcription, choose a compatible WhisperKit CoreML model in the app and click **Installieren**. Blitztext stores models in:
-
-```text
-~/Library/Application Support/Blitztext/models/whisperkit/
+```bash
+./build.sh --install --run
 ```
 
-Recommended first model: `openai_whisper-small_216MB`.
+### 3. Configure Groq API Key
 
-See [local-models.md](local-models.md) for the exact command, model links, and expected folder layout.
+Open **Settings → Zugang** and enter your Groq API key (`gsk_...`).
 
-## 5. macOS Permissions
+QuickDictate uses:
+- `whisper-large-v3-turbo` for transcription (configurable)
+- `llama-3.3-70b-versatile` for rewriting (configurable)
 
-The app needs Microphone permission to record audio.
+The key is stored in the macOS Keychain (`app.quickdictate.credentials`). Never commit it to the repo, paste it in issues, or include it in screenshots.
 
-For automatic paste into the previous app, grant Accessibility permission in macOS System Settings. Without it, you can still copy and paste manually.
+You can test the connection with the **API-Verbindung testen** button in Settings.
 
-Blitztext does not need Full Disk Access. Auto-paste uses the Accessibility permission because the app simulates Cmd+V after putting the result on the clipboard.
+### 4. Optional Local Transcription
 
-## Troubleshooting
+Choose a WhisperKit CoreML model in **Settings → Anpassen → Lokales Modell** and click **Installieren**. Models are stored in:
 
-- If `xcodebuild` reports that the active developer directory is only Command Line Tools, run `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`.
-- If the build cannot find XcodeGen, install it explicitly with `brew install xcodegen`.
-- If online transcription fails immediately, check whether the API key is present and valid.
-- If secure local mode is disabled, check whether a WhisperKit model is installed in the expected folder.
-- If transcription works but paste does not, this is not an OpenAI billing issue. Check **Privacy & Security -> Accessibility**, restart Blitztext after changing the permission, and make sure the cursor is focused in a text field before starting the workflow.
-- If macOS shows multiple Blitztext entries under Accessibility, remove or disable stale entries, run the app from the final location (`/Applications` if you used `./build.sh --install`), then grant the permission again.
-- If the target app blocks synthetic paste or the target app was not detected, the result still stays on the clipboard so you can press Cmd+V manually.
-- If audio is missing, check Microphone permission and macOS input settings.
-- If you see OpenAI errors, verify model access and account billing.
+```text
+~/Library/Application Support/QuickDictate/models/whisperkit/
+```
+
+After installation, enable **Sicherer Lokaler Modus** to use it. Rewriting workflows require Groq and are paused in local mode.
+
+See [local-models.md](local-models.md) for model details.
+
+### 5. macOS Permissions
+
+- **Microphone**: required for recording.
+- **Accessibility**: required for automatic paste (Cmd+V simulation). Without it, results are copied to the clipboard and can be pasted manually.
+
+QuickDictate does not need Full Disk Access.
+
+### macOS Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `xcodebuild` reports wrong developer directory | `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer` |
+| XcodeGen not found | `brew install xcodegen` |
+| Groq API key error | Check key in Settings → test button |
+| Paste doesn't work | Settings → Privacy & Security → Accessibility → enable QuickDictate → restart app |
+| Multiple QuickDictate entries in Accessibility | Remove stale entries, relaunch from `/Applications`, re-grant permission |
+| Audio is missing | Check Microphone permission and macOS input device settings |
+| Local model not found | Check `~/Library/Application Support/QuickDictate/models/whisperkit/` |
+
+---
+
+## Windows Setup
+
+### 1. Requirements
+
+- Windows 11 (WebView2 pre-installed)
+- [Rust](https://rustup.rs) stable
+- [Node.js](https://nodejs.org) v18+
+- A [Groq API key](https://console.groq.com)
+
+### 2. Build
+
+```powershell
+cd QuickDictateWindows
+npm install
+npx @tauri-apps/cli icon ..\BlitztextMac\Resources\Assets.xcassets\AppIcon.appiconset\icon_512x512.png
+npm run build
+# or:
+powershell -ExecutionPolicy Bypass -File build-windows.ps1 -Run
+```
+
+Full details: [BUILD_WINDOWS_PORTABLE.md](BUILD_WINDOWS_PORTABLE.md)
+
+### 3. Configure Groq API Key
+
+Open **Settings** from the tray icon context menu. Enter your Groq API key (`gsk_...`). It is stored in the Windows Credential Manager.
+
+### Windows Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| App doesn't start | Install Visual C++ Redistributable |
+| WebView2 missing | Download from Microsoft Edge WebView2 page |
+| Microphone not found | Windows Settings → Privacy → Microphone → allow app |
+| Hotkey not working | Run as Administrator (some apps block global hotkeys) |
+| SmartScreen warning | Click "More info → Run anyway" — no malware, unsigned binary |
