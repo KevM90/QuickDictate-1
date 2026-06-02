@@ -272,7 +272,7 @@ struct AccessSettingsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 SectionLabel(text: "Beim Anmelden")
 
-                Toggle("Blitztext automatisch starten", isOn: Binding(
+                Toggle("QuickDictate automatisch starten", isOn: Binding(
                     get: { launchAtLoginService.isEnabled },
                     set: { launchAtLoginService.setEnabled($0) }
                 ))
