@@ -4,8 +4,10 @@
 
 | Remote | URL | Sichtbarkeit |
 |--------|-----|--------------|
-| `public` | https://github.com/KevM90/QuickDictate-1 | Öffentlich (Fork) |
-| `private` | https://github.com/KevM90/QuickDictate | Privat |
+| `public` | https://github.com/<your-user>/QuickDictate-1 | Öffentlich (Fork) |
+| `private` | https://github.com/<your-user>/QuickDictate | Privat |
+
+> Die tatsächlichen Remote-URLs sind lokal im Git-Config gespeichert (`git remote -v`), nicht in dieser Datei.
 
 ## Parallel in beide Repos pushen
 
