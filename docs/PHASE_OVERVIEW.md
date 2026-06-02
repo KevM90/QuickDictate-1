@@ -12,7 +12,7 @@
 | 7 | Windows Packaging & Qualität | ✅ Abgeschlossen | 2026-06-02 | — |
 | 8 | Dokumentation & README Finalisierung | ✅ Abgeschlossen | 2026-06-03 | — |
 | 9 | Security-, Secret- & Anonymisierungscheck | ✅ Abgeschlossen | 2026-06-03 | — |
-| 10 | Privates GitHub-Repository & Push | ⏳ Offen | — | — |
+| 10 | Privates GitHub-Repository & Push | ✅ Abgeschlossen | 2026-06-03 | 6abc21f |
 
 ## Phase 0 — Zusammenfassung
 Keine Codeänderungen. Ist-Architektur dokumentiert, OpenAI-Stellen lokalisiert, Risiken bewertet.  
