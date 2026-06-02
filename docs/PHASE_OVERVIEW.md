@@ -1,0 +1,26 @@
+# Phase Overview — QuickDictate
+
+| Phase | Name | Status | Datum | Commit |
+|-------|------|--------|-------|--------|
+| 0 | Setup & Repository-Analyse | ✅ Abgeschlossen | 2026-06-02 | — |
+| 1 | Architektur- & Umsetzungskonzept | ✅ Abgeschlossen | 2026-06-02 | — |
+| 2 | Groq Provider Layer | ✅ Abgeschlossen | 2026-06-02 | — |
+| 3 | macOS Settings & Secret Management | ✅ Abgeschlossen | 2026-06-02 | — |
+| 4 | macOS Funktionalität & Build | ⏳ Offen | — | — |
+| 5 | Windows Portable Architekturentscheidung | ⏳ Offen | — | — |
+| 6 | Windows Portable MVP | ⏳ Offen | — | — |
+| 7 | Windows Packaging & Qualität | ⏳ Offen | — | — |
+| 8 | Dokumentation & README Finalisierung | ⏳ Offen | — | — |
+| 9 | Security-, Secret- & Anonymisierungscheck | ⏳ Offen | — | — |
+| 10 | Privates GitHub-Repository & Push | ⏳ Offen | — | — |
+
+## Phase 0 — Zusammenfassung
+Keine Codeänderungen. Ist-Architektur dokumentiert, OpenAI-Stellen lokalisiert, Risiken bewertet.  
+Security-Check: sauber.
+
+## Phase 1 — Zusammenfassung
+App-Name: **QuickDictate**. OpenAI wird vollständig entfernt (kein Fallback).  
+Umbau-Strategie: minimale Abstraktion, direkte Service-Ersetzung.  
+Windows-Favorit: Tauri (Entscheidung Phase 5).  
+Alle zu ändernden Stellen vollständig identifiziert.  
+Keine Codeänderungen. Security-Check: sauber.
